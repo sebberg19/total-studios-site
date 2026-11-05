@@ -13,12 +13,12 @@ names=iter(['archivo','cascadia-mono-light'])
 s=re.sub(r'url\(data:font/woff2;base64,[^)]+\)',lambda m:'url(/fonts/%s.woff2)'%next(names),s)
 # remove debug banner helper display only on error is fine; keep
 P={
-'accueil':('/','TOTAL STUDIOS | Photographie sportive à Montréal','Équipe de photographie sportive et de contenu digital à Montréal pour les athlètes, les clubs et les ligues de football et de soccer.'),
-'galerie':('/galerie/','Galerie média | TOTAL STUDIOS','Photos et vidéos de football et de soccer réalisées par TOTAL STUDIOS à Montréal.'),
-'services':('/services/','Services | TOTAL STUDIOS','Photographie, vidéographie et contenu digital pour les athlètes, les clubs et les ligues. Livraison des photos traitées environ 48 heures après la session.'),
-'a-propos':('/a-propos/','À propos | TOTAL STUDIOS','TOTAL STUDIOS est une équipe de photographie sportive et de contenu digital fondée à Montréal, par passion pour le sport et le travail bien fait.'),
-'contact':('/contact/','Contact | TOTAL STUDIOS','Écrivez à TOTAL STUDIOS à info@totalstudios.ca pour vos projets de photographie sportive, de vidéo et de contenu digital.'),
-'reserver':('/reserver/','Réserver une session photo ou vidéo | TOTAL STUDIOS','Réservez une session photo ou vidéo pour un match, un entraînement ou un événement de football ou de soccer, ou une saison complète.'),
+'accueil':('/','Total Studios Montréal | Photographie sportive','Équipe de photographie sportive et de contenu digital à Montréal pour les athlètes, les clubs et les ligues de football et de soccer.'),
+'galerie':('/galerie/','Total Studios Montréal | Galerie média','Photos et vidéos de football et de soccer réalisées par TOTAL STUDIOS à Montréal.'),
+'services':('/services/','Total Studios Montréal | Services','Photographie, vidéographie et contenu digital pour les athlètes, les clubs et les ligues. Livraison des photos traitées environ 48 heures après la session.'),
+'a-propos':('/a-propos/','Total Studios Montréal | À propos','TOTAL STUDIOS est une équipe de photographie sportive et de contenu digital fondée à Montréal, par passion pour le sport et le travail bien fait.'),
+'contact':('/contact/','Total Studios Montréal | Contact','Écrivez à TOTAL STUDIOS à info@totalstudios.ca pour vos projets de photographie sportive, de vidéo et de contenu digital.'),
+'reserver':('/reserver/','Total Studios Montréal | Réserver une session','Réservez une session photo ou vidéo pour un match, un entraînement ou un événement de football ou de soccer, ou une saison complète.'),
 }
 ld={"@context":"https://schema.org","@graph":[
  {"@type":"ProfessionalService","@id":DOMAIN+"/#org","name":"TOTAL STUDIOS","url":DOMAIN+"/","email":"info@totalstudios.ca","logo":DOMAIN+"/apple-touch-icon.png","image":DOMAIN+"/og.png",
@@ -81,7 +81,7 @@ window.addEventListener('popstate',()=>{const p=location.pathname.replace(/^\\/|
 [shutil.copy(ROOT+'/source/assets/'+f,OUT+'/'+f) for f in ['og.png','favicon-noir.svg','favicon-blanc.svg','favicon-noir-64.png','favicon-blanc-64.png','apple-touch-icon.png']]
 open(OUT+'/_redirects','w').write('/index.html / 301!\n/accueil / 301!\n/galerie/index.html /galerie/ 301!\n/services/index.html /services/ 301!\n/a-propos/index.html /a-propos/ 301!\n/contact/index.html /contact/ 301!\n/reserver/index.html /reserver/ 301!\n')
 four=open(OUT+'/contact/index.html',encoding='utf8').read()
-four=re.sub(r'<title>.*?</title>','<title>Page introuvable | TOTAL STUDIOS</title>',four,count=1,flags=re.S)
+four=re.sub(r'<title>.*?</title>','<title>Total Studios Montréal | Page introuvable</title>',four,count=1,flags=re.S)
 four=re.sub(r'<meta name="robots"[^>]*>','<meta name="robots" content="noindex">',four,count=1)
 four=re.sub(r'<link rel="canonical"[^>]*>','',four,count=1)
 four=re.sub(r'<script type="application/ld\+json">.*?</script>','',four,count=1,flags=re.S)
