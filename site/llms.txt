@@ -1,0 +1,25 @@
+# TOTAL STUDIOS
+
+> Équipe de photographie sportive et de contenu digital fondée à Montréal, pour les athlètes, les clubs et les ligues de football et de soccer. Contenu créé par des humains, sans intelligence artificielle générative.
+
+## Services
+- Photographie et vidéographie sportive : portraits d’athlètes, couverture de matchs et d’événements sportifs, banques d’images et de vidéos pour clubs, équipes et joueurs.
+- Contenu digital : visuels et templates de publications, développement d’identité visuelle, affiches promotionnelles.
+
+## Déroulement
+Nous nous déplaçons au match ou à la session, prenons les photos et les vidéos, puis faisons le tri, la retouche et l’étalonnage des couleurs. Les photos traitées sont livrées environ 48 heures après la session. Le délai peut varier pour le montage vidéo, le design graphique et le branding.
+
+## Pages
+- [Accueil](https://totalstudios.ca/)
+- [Galerie média](https://totalstudios.ca/galerie/)
+- [Services](https://totalstudios.ca/services/)
+- [À propos](https://totalstudios.ca/a-propos/)
+- [Contact](https://totalstudios.ca/contact/)
+- [Réserver](https://totalstudios.ca/reserver/)
+
+## Détails
+Version complète : https://totalstudios.ca/llms-full.txt
+
+## Contact
+info@totalstudios.ca
+Région desservie : Montréal (Québec, Canada). Langues : français (Canada) et anglais.
