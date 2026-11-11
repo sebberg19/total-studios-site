@@ -56,7 +56,7 @@ function sections(d) {
     [dates.length > 1 ? 'Dates' : 'Date', dates],
     ...(perDate ? [] : [['Heure de début', fmtHeure(d.heure)]]),
   ]]);
-  S.push(['Lieu', [['Adresse', d.adresse || d.ville], ['Numéro de terrain', d.terrain]]]);
+  S.push(['Lieu', [['Adresse', d.adresse], ['Ville', d.ville], ['Province', d.province], ['Code postal', d.code_postal], ['Numéro de terrain', d.terrain]]]);
   S.push(['Coordonnées', [
     ['Nom', d.nom], ['Vous êtes', d.repondant], ['Fonction', d.fonction], ['Courriel', d.courriel], ['Téléphone', d.telephone], ['Précisions', d.projet],
   ]]);
