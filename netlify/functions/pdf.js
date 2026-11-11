@@ -30,12 +30,22 @@ function sections(d) {
     [orgLabel, d.organisation],
     ['Numéro de chandail', d.numero],
     ['Équipe ou catégorie', d.categorie],
+    ['Âge ou catégorie', d.age],
+    ['Nombre d’équipes', d.nb_equipes],
     ['Matchs ou équipes visés', d.volume],
   ]]);
   S.push(['Session', [
     ['Type de session', d.type_session],
     ['Services', d.services],
     ['Sport', d.sport],
+  ]]);
+  S.push(['Besoins', [
+    ['Options', d.options],
+    ['Contenu digital', d.contenu],
+    ['Publications par mois', d.pubs_mois],
+    ['Nombre d’affiches', d.nb_affiches],
+    ['Gabarits existants', d.gabarits],
+    ['Compte Instagram', d.instagram],
   ]]);
   S.push(['Date et heure', [
     ['Format', multi ? 'Plusieurs sessions' : 'Une session'],
@@ -44,7 +54,7 @@ function sections(d) {
   ]]);
   S.push(['Lieu', [['Ville', d.ville], ['Terrain / parc', d.terrain]]]);
   S.push(['Coordonnées', [
-    ['Nom', d.nom], ['Courriel', d.courriel], ['Téléphone', d.telephone], ['Précisions', d.projet],
+    ['Nom', d.nom], ['Vous êtes', d.repondant], ['Fonction', d.fonction], ['Courriel', d.courriel], ['Téléphone', d.telephone], ['Précisions', d.projet],
   ]]);
   return S.map(([t, rows]) => [t, rows.filter(([, v]) => Array.isArray(v) ? v.length : clean(v))]).filter(([, r]) => r.length);
 }

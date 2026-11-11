@@ -23,7 +23,7 @@ exports.handler = async event => {
   const subject = `Nouvelle demande de réservation | ${[clean(d.profil), who, when].filter(Boolean).join(' | ')}`;
   const lines = [
     ['Profil', d.profil], ['Nom', d.nom], ['Courriel', d.courriel], ['Téléphone', d.telephone],
-    ['Équipe / club', d.organisation], ['Services', d.services], ['Dates', dates.join(' ; ')], ['Lieu', [d.ville, d.terrain].filter(Boolean).join(', ')],
+    ['Équipe / club', d.organisation], ['Services', d.services], ['Options', [d.options, d.contenu].filter(Boolean).join(', ')], ['Dates', dates.join(' ; ')], ['Lieu', [d.ville, d.terrain].filter(Boolean).join(', ')],
   ].filter(([, v]) => clean(v));
   const text = 'Nouvelle demande de réservation reçue sur totalstudios.ca.\n\n' + lines.map(([k, v]) => `${k} : ${clean(v)}`).join('\n') + '\n\nLe PDF complet est en pièce jointe. Répondez à ce courriel pour écrire directement au client.';
   const html = `<div style="font:14px/1.6 Helvetica,Arial,sans-serif;color:#000"><p><b>Nouvelle demande de réservation</b> reçue sur totalstudios.ca.</p><table cellpadding="4" style="border-collapse:collapse">${lines.map(([k, v]) => `<tr><td style="color:#777">${esc(k)}</td><td>${esc(clean(v))}</td></tr>`).join('')}</table><p>Le PDF complet est en pièce jointe. Répondez à ce courriel pour écrire directement au client.</p></div>`;
