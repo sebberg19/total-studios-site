@@ -22,7 +22,11 @@ function fmtHeure(v) { const m = /^(\d{1,2}):(\d{2})/.exec(clean(v)); return m ?
 function sections(d) {
   const profil = clean(d.profil).toUpperCase();
   const orgLabel = profil === 'CLUB' ? 'Nom du club' : profil === 'LIGUE' ? 'Nom de la ligue' : 'Équipe ou club';
-  const dates = fmtDates(d.dates, fmtDates(d.dates).length > 8);
+  const hmap = {};
+  clean(d.heures).split(/\s*;\s*/).filter(Boolean).forEach(x => { const [k, v] = x.split(/\s+/); if (k) hmap[k] = v; });
+  const isos = clean(d.dates).split(/\s*,\s*/).filter(Boolean);
+  const perDate = Object.keys(hmap).length > 0;
+  const dates = fmtDates(d.dates, fmtDates(d.dates).length > 8).map((x, i) => perDate && hmap[isos[i]] ? `${x} · ${fmtHeure(hmap[isos[i]])}` : x);
   const multi = /multi/i.test(clean(d.mode));
   const S = [];
   S.push(['Profil', [
@@ -50,7 +54,7 @@ function sections(d) {
   S.push(['Date et heure', [
     ['Format', multi ? 'Plusieurs sessions' : 'Une session'],
     [dates.length > 1 ? 'Dates' : 'Date', dates],
-    ['Heure de début', fmtHeure(d.heure)],
+    ...(perDate ? [] : [['Heure de début', fmtHeure(d.heure)]]),
   ]]);
   S.push(['Lieu', [['Ville', d.ville], ['Terrain / parc', d.terrain]]]);
   S.push(['Coordonnées', [
