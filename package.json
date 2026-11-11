@@ -1,0 +1,10 @@
+{
+  "name": "total-studios-site",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Site de TOTAL STUDIOS : fonction Netlify qui envoie chaque demande de réservation en PDF par courriel",
+  "dependencies": {
+    "@pdf-lib/fontkit": "1.1.1",
+    "pdf-lib": "1.17.1"
+  }
+}
