@@ -59,6 +59,7 @@ function sections(d) {
   S.push(['Lieu', [['Adresse', d.adresse], ['Ville', d.ville], ['Province', d.province], ['Code postal', d.code_postal], ['Pays', d.pays], ['Numéro de terrain', d.terrain]]]);
   S.push(['Coordonnées', [
     ['Nom', d.nom], ['Vous êtes', d.repondant], ['Fonction', d.fonction], ['Courriel', d.courriel], ['Téléphone', d.telephone], ['Précisions', d.projet],
+    ['Conditions de réservation', d.conditions && 'Acceptées à l’envoi de la demande' + (clean(d.conditions_version) ? ' (version ' + clean(d.conditions_version) + ')' : '')],
   ]]);
   return S.map(([t, rows]) => [t, rows.filter(([, v]) => Array.isArray(v) ? v.length : clean(v))]).filter(([, r]) => r.length);
 }
