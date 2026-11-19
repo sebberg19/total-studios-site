@@ -17,23 +17,22 @@
 :root{--k:#000;--w:#fff;--g:#8f8f8f;--l:#2a2a2a;--y:#ccff00;--f:"Archivo",Helvetica,Arial,sans-serif;--mo:"Cascadia Mono",ui-monospace,Menlo,Consolas,monospace;color-scheme:dark}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{background:var(--k)}
-body{min-height:100svh;background:var(--k);color:var(--w);font:300 14px/1.5 var(--mo);display:flex;flex-direction:column;align-items:center;padding:max(28px,env(safe-area-inset-top)) 20px max(28px,env(safe-area-inset-bottom));-webkit-font-smoothing:antialiased}
-main{width:100%;max-width:440px;display:flex;flex-direction:column;flex:1}
-.lang{align-self:flex-end;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--g)}
-.lang button{all:unset;cursor:pointer;padding:6px 4px;color:var(--g)}.lang button[aria-pressed=true]{color:var(--w)}
-.logo{display:block;width:min(260px,70%);height:auto;fill:var(--w);margin:clamp(20px,5svh,56px) auto 0}
-.tag{margin:22px auto 0;text-align:center;color:var(--g);font-size:12px;letter-spacing:.06em;text-transform:uppercase;text-wrap:balance}
-.ls{display:grid;gap:12px;margin-top:clamp(24px,5svh,44px)}
-.ls a{position:relative;display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:58px;padding:0 22px;border:1px solid var(--l);color:var(--w);text-decoration:none;font:900 14px/1 var(--f);font-stretch:125%;letter-spacing:-.03em;text-transform:uppercase;transition:border-color .16s,background .16s,color .16s}
-.ls a span{font:300 12px var(--mo);letter-spacing:0;color:var(--g);transition:color .16s}
-.ls a.pri{background:var(--w);color:var(--k);border-color:var(--w)}.ls a.pri span{color:var(--k)}
-.ls a:active{border-color:var(--y)}
-.so{display:flex;justify-content:center;gap:12px;margin-top:12px}
-.so a{display:grid;place-items:center;width:58px;height:58px;border:1px solid var(--l);color:var(--w);transition:border-color .16s,color .16s}
-.so svg{width:22px;height:22px}
-.sv{display:block;width:max-content;margin:24px auto 0;color:var(--g);font-size:12px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;border-bottom:1px solid var(--l);padding-bottom:3px}
-foot,footer{margin-top:auto;padding-top:40px;text-align:center;color:#555;font-size:11px;letter-spacing:.08em;text-transform:uppercase}
-@media(hover:hover){.ls a:hover{border-color:var(--y)}.ls a:hover span{color:var(--y)}.ls a.pri:hover{background:var(--y);border-color:var(--y)}.so a:hover{border-color:var(--y);color:var(--y)}.sv:hover{color:var(--y);border-color:var(--y)}}
+body{min-height:100svh;background:var(--k);color:var(--w);font:300 14px/1.5 var(--mo);padding:calc(24px + env(safe-area-inset-top)) 24px calc(28px + env(safe-area-inset-bottom));-webkit-font-smoothing:antialiased}
+main{width:100%;max-width:560px;margin:0 auto;min-height:calc(100svh - 52px - env(safe-area-inset-top) - env(safe-area-inset-bottom));display:flex;flex-direction:column}
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.logo{display:block;width:clamp(120px,34vw,160px);height:auto;fill:var(--w)}
+.lang{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--g)}
+.lang button{all:unset;cursor:pointer;padding:6px 2px;color:var(--g);border-bottom:1px solid transparent}.lang button[aria-pressed=true]{color:var(--w);border-bottom-color:var(--w)}
+.tag{margin-top:clamp(56px,14svh,120px);color:var(--g);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.ls{display:flex;flex-direction:column;gap:4px;margin-top:20px}
+.ls a{width:max-content;max-width:100%;padding:6px 0;color:var(--w);text-decoration:none;font:900 clamp(22px,6.6vw,40px)/1.1 var(--f);font-stretch:125%;text-transform:uppercase;letter-spacing:-.045em;transition:color .16s}
+.ls a:active{color:var(--y)}
+.so{display:flex;gap:22px;margin-top:clamp(36px,8svh,64px)}
+.so a{display:block;color:var(--w);transition:color .16s;padding:4px 0}
+.so svg{width:22px;height:22px;display:block}
+.sv{display:block;width:max-content;margin-top:22px;color:var(--g);font-size:12px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;border-bottom:1px solid #333;padding-bottom:2px;transition:color .16s,border-color .16s}
+footer{margin-top:auto;padding-top:48px;color:#555;font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+@media(hover:hover){.ls a:hover,.so a:hover{color:var(--y)}.sv:hover{color:var(--y);border-color:var(--y)}}
 a:focus-visible,button:focus-visible{outline:2px solid var(--y);outline-offset:3px}
 @media(prefers-reduced-motion:no-preference){main>*{animation:u .5s cubic-bezier(.2,.7,.2,1) both}main>*:nth-child(2){animation-delay:.05s}main>*:nth-child(3){animation-delay:.1s}main>*:nth-child(4){animation-delay:.15s}main>*:nth-child(5){animation-delay:.2s}@keyframes u{from{opacity:0;transform:translateY(10px)}}}
 </style>
@@ -41,14 +40,13 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--y);outline-offset:3
 <body>
 {{DEFS}}
 <main>
-<div class="lang" role="group" aria-label="Langue"><button type="button" data-l="fr" aria-pressed="true">FR</button> / <button type="button" data-l="en" aria-pressed="false">EN</button></div>
-<svg class="logo" viewBox="135.3 448.8 918.8 291.6" role="img" aria-label="TOTAL STUDIOS"><use href="#lgp"/></svg>
+<div class="top"><svg class="logo" viewBox="135.3 448.8 918.8 291.6" role="img" aria-label="TOTAL STUDIOS"><use href="#lgp"/></svg><div class="lang" role="group" aria-label="Langue"><button type="button" data-l="fr" aria-pressed="true">FR</button> / <button type="button" data-l="en" aria-pressed="false">EN</button></div></div>
 <p class="tag" data-i="tag">Photographie sportive et contenu digital</p>
 <nav class="ls" aria-label="Liens">
-<a class="pri" href="/reserver/"><b data-i="res">Réserver une session</b><span>→</span></a>
-<a href="/galerie/"><b data-i="gal">Notre travail</b><span>→</span></a>
-<a href="/"><b data-i="site">Notre site</b><span>→</span></a>
-<a href="mailto:info@totalstudios.ca"><b data-i="mail">Nous écrire</b><span>→</span></a>
+<a href="/reserver/" data-i="res">Réserver</a>
+<a href="/galerie/" data-i="gal">Notre travail</a>
+<a href="/" data-i="site">Notre site</a>
+<a href="mailto:info@totalstudios.ca" data-i="mail">Nous écrire</a>
 </nav>
 <div class="so">
 <a href="#" aria-label="Instagram" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.3" cy="6.7" r=".6" fill="currentColor"/></svg></a>
@@ -58,7 +56,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--y);outline-offset:3
 <footer>Montréal</footer>
 </main>
 <script>
-const D={fr:{tag:'Photographie sportive et contenu digital',res:'Réserver une session',gal:'Notre travail',site:'Notre site',mail:'Nous écrire',vc:'Enregistrer le contact'},en:{tag:'Sports photography and digital content',res:'Book a session',gal:'Our work',site:'Our website',mail:'Write to us',vc:'Save our contact'}};
+const D={fr:{tag:'Photographie sportive et contenu digital',res:'Réserver',gal:'Notre travail',site:'Notre site',mail:'Nous écrire',vc:'Enregistrer le contact'},en:{tag:'Sports photography and digital content',res:'Book',gal:'Our work',site:'Our website',mail:'Write to us',vc:'Save our contact'}};
 function L(l){document.documentElement.lang=l=='en'?'en-CA':'fr-CA';document.querySelectorAll('[data-i]').forEach(e=>e.textContent=D[l][e.dataset.i]);document.querySelectorAll('.lang button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.l==l));try{localStorage.setItem('lg',l)}catch(_){}}
 document.querySelectorAll('.lang button').forEach(b=>b.onclick=()=>L(b.dataset.l));
 let l0='fr';try{l0=localStorage.getItem('lg')||((navigator.language||'').startsWith('en')?'en':'fr')}catch(_){}
