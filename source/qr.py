@@ -4,7 +4,7 @@ ROOT=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 URL='HTTPS://TOTALSTUDIOS.CA/QR'  # majuscules = mode alphanumérique : moins de modules, donc des modules plus gros à l'impression
 q=segno.make(URL,error='h',micro=False,boost_error=False)
 M=[list(r) for r in q.matrix];n=len(M)
-KW,KH=11,7;cx0=(n-KW)//2;cy0=(n-KH)//2  # zone dégagée au centre (modules)
+KW,KH=11,9;cx0=(n-KW)//2;cy0=(n-KH)//2  # zone dégagée au centre (modules)
 def inbox(x,y):return cx0<=x<cx0+KW and cy0<=y<cy0+KH
 def fav(name):
     t=open(f'{ROOT}/source/assets/{name}',encoding='utf8').read()
