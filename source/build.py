@@ -79,7 +79,7 @@ window.addEventListener('popstate',()=>{const p=location.pathname.replace(/^\\/|
     d=OUT+path; os.makedirs(d,exist_ok=True); open(d+'index.html','w',encoding='utf8').write(h)
 # static files
 [shutil.copy(ROOT+'/source/assets/'+f,OUT+'/'+f) for f in ['og.png','favicon-noir.svg','favicon-blanc.svg','favicon-noir-64.png','favicon-blanc-64.png','apple-touch-icon.png']]
-open(OUT+'/_redirects','w').write('/index.html / 301!\n/accueil / 301!\n/galerie/index.html /galerie/ 301!\n/services/index.html /services/ 301!\n/a-propos/index.html /a-propos/ 301!\n/contact/index.html /contact/ 301!\n/reserver/index.html /reserver/ 301!\n/carte/index.html /carte/ 301!\n/qr /carte/ 302!\n')
+open(OUT+'/_redirects','w').write('/index.html / 301!\n/accueil / 301!\n/galerie/index.html /galerie/ 301!\n/services/index.html /services/ 301!\n/a-propos/index.html /a-propos/ 301!\n/contact/index.html /contact/ 301!\n/reserver/index.html /reserver/ 301!\n/carte/index.html /carte/ 301!\n/qr /carte/ 302!\n/QR /carte/ 302!\n')
 four=open(OUT+'/contact/index.html',encoding='utf8').read()
 four=re.sub(r'<title>.*?</title>','<title>Total Studios Montréal | Page introuvable</title>',four,count=1,flags=re.S)
 four=re.sub(r'<meta name="robots"[^>]*>','<meta name="robots" content="noindex">',four,count=1)

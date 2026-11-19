@@ -7,3 +7,4 @@
 /reserver/index.html /reserver/ 301!
 /carte/index.html /carte/ 301!
 /qr /carte/ 302!
+/QR /carte/ 302!
