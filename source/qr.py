@@ -5,7 +5,7 @@ URL='HTTPS://TOTALSTUDIOS.CA/QR'  # majuscules = mode alphanumérique : moins de
 q=segno.make(URL,error='h',micro=False,boost_error=False)
 M=[list(r) for r in q.matrix];n=len(M)
 KW,KH=9,5;cx0=(n-KW)//2;cy0=(n-KH)//2  # noyau dégagé au centre (modules)
-RING=((.6,.35,.15,0),(.7,.45,.2,0))  # (horizontal, vertical): probabilité de retrait par anneau, de plus en plus clairsemé vers l'extérieur
+RING=((.6,.35,.15,0),(.95,.6,.3,.1))  # (horizontal, vertical): probabilité de retrait par anneau, de plus en plus clairsemé vers l'extérieur
 B=((0,8,2,10),(12,4,14,6),(3,11,1,9),(15,7,13,5))  # matrice de tramage 4x4 (motif régulier, pas de hasard)
 def dist(x,y):
     dx=max(cx0-x,0,x-(cx0+KW-1));dy=max(cy0-y,0,y-(cy0+KH-1));return dx,dy
@@ -14,7 +14,7 @@ def inbox(x,y):
     dx,dy=dist(x,y)
     if dx==0 and dy==0:return True
     if func(x,y):return False
-    if x<cx0+KW//2 and y>=cy0+KH//2:return False  # en bas à gauche, on garde les carrés (sinon c'est trop vide)
+    if x<cx0+KW//2 and y>=cy0+KH//2 and dx>dy:return False  # en bas à gauche, on garde les carrés (sinon c'est trop vide)
     d=max(dx,dy)
     if d>4:return False
     pr=RING[0 if dx>=dy else 1][d-1]
