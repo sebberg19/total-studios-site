@@ -7,4 +7,4 @@
 /reserver/index.html /reserver/ 301!
 /carte/index.html /carte/ 301!
 /carte /carte/ 301!
-/qr /.netlify/functions/qr 200!
+/qr /carte/ 302!
