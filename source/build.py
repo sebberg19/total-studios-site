@@ -40,6 +40,7 @@ for v,(path,title,desc) in P.items():
     ldp['@graph'].append({"@type":T,"@id":DOMAIN+path+"#page","url":DOMAIN+path,"name":title,"description":desc,"inLanguage":"fr-CA","isPartOf":{"@id":DOMAIN+"/#site"},"about":{"@id":DOMAIN+"/#org"}})
     if v!='accueil':
         ldp['@graph'].append({"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Accueil","item":DOMAIN+"/"},{"@type":"ListItem","position":2,"name":title.split(' | ')[0] if v!='reserver' else 'Réserver',"item":DOMAIN+path}]})
+    if v=='services': ldp['@graph'].append({'@type':'FAQPage','mainEntity':[{'@type': 'Question', 'name': 'Où êtes-vous situés ?', 'acceptedAnswer': {'@type': 'Answer', 'text': 'Nous sommes à Montréal, au Québec. Nous nous déplaçons aux matchs et aux sessions.'}}, {'@type': 'Question', 'name': 'Quels sports couvrez-vous ?', 'acceptedAnswer': {'@type': 'Answer', 'text': 'Nous couvrons le football et le soccer.'}}, {'@type': 'Question', 'name': 'Combien de temps pour recevoir les photos ?', 'acceptedAnswer': {'@type': 'Answer', 'text': 'Environ 48 heures après la session. Le montage vidéo, le design graphique et le branding demandent un peu plus de temps.'}}, {'@type': 'Question', 'name': 'Comment réserver ?', 'acceptedAnswer': {'@type': 'Answer', 'text': 'Avec le formulaire de réservation ou par courriel à info@totalstudios.ca. Nous répondons par courriel pour confirmer les détails.'}}, {'@type': 'Question', 'name': 'Peut-on réserver toute une saison ?', 'acceptedAnswer': {'@type': 'Answer', 'text': 'Oui. Il est possible de choisir plusieurs dates, jusqu’à une saison complète.'}}, {'@type': 'Question', 'name': 'Utilisez-vous l’intelligence artificielle ?', 'acceptedAnswer': {'@type': 'Answer', 'text': 'Non. Nous n’utilisons pas d’intelligence artificielle générative pour créer le contenu.'}}]})
     ldj=json.dumps(ldp,ensure_ascii=False,separators=(',',':'))
     head=f'''<title>{title}</title>
 <meta name="description" content="{desc}">
@@ -100,7 +101,7 @@ Allow: /
 
 Sitemap: {DOMAIN}/sitemap.xml
 ''')
-open(OUT+'/sitemap.xml','w').write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'+''.join(f'<url><loc>{DOMAIN}{p}</loc><lastmod>2026-11-04</lastmod></url>\n' for p,_,_ in P.values())+'</urlset>\n')
+open(OUT+'/sitemap.xml','w').write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'+''.join(f'<url><loc>{DOMAIN}{p}</loc><lastmod>'+__import__('datetime').date.today().isoformat()+'</lastmod></url>\n' for p,_,_ in P.values())+'</urlset>\n')
 open(OUT+'/llms.txt','w',encoding='utf8').write(f'''# TOTAL STUDIOS
 
 > Équipe de photographie sportive et de contenu digital fondée à Montréal, pour les athlètes, les clubs et les ligues de football et de soccer. Contenu créé par des humains, sans intelligence artificielle générative.
