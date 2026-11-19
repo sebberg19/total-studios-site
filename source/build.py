@@ -191,7 +191,7 @@ _c=open(ROOT+'/source/carte.html',encoding='utf8').read()
 _d=re.search(r'<svg width="0" height="0" style="position:absolute" aria-hidden="true">.*?</svg>',s,re.S).group(0)
 os.makedirs(OUT+'/carte',exist_ok=True)
 open(OUT+'/carte/index.html','w',encoding='utf8').write(_c.replace('{{DEFS}}',_d))
-open(OUT+'/total-studios.vcf','w',encoding='utf8',newline='').write('BEGIN:VCARD\r\nVERSION:3.0\r\nFN:TOTAL STUDIOS\r\nORG:TOTAL STUDIOS\r\nTITLE:Photographie sportive et contenu digital\r\nEMAIL;TYPE=WORK:info@totalstudios.ca\r\nURL:'+DOMAIN+'/\r\nADR;TYPE=WORK:;;;Montréal;QC;;Canada\r\nEND:VCARD\r\n')
+open(OUT+'/total-studios.vcf','w',encoding='utf8',newline='').write('BEGIN:VCARD\r\nVERSION:3.0\r\nFN:TOTAL STUDIOS\r\nORG:TOTAL STUDIOS\r\nEMAIL;TYPE=WORK:info@totalstudios.ca\r\nURL:'+DOMAIN+'/\r\nADR;TYPE=WORK:;;;Montréal;QC;;Canada\r\nEND:VCARD\r\n')
 # favicon + og source: logo defs
 m=re.search(r'<svg width="0" height="0" style="position:absolute" aria-hidden="true">.*?</svg>',s,re.S);defs=m.group(0)
 pass
