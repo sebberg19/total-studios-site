@@ -14,6 +14,7 @@ def inbox(x,y):
     dx,dy=dist(x,y)
     if dx==0 and dy==0:return True
     if func(x,y):return False
+    if x<cx0+KW//2 and y>=cy0+KH//2:return False  # en bas à gauche, on garde les carrés (sinon c'est trop vide)
     d=max(dx,dy)
     if d>4:return False
     pr=RING[0 if dx>=dy else 1][d-1]
