@@ -5,7 +5,7 @@ if((L&&L.getItem('ts_no'))||navigator.webdriver||/^(localhost|127\.|192\.168\.)/
 var U='/api/t',ref=document.referrer,first=1,cur='',t0=0,st=0;
 function send(o){var b=JSON.stringify(o);try{if(navigator.sendBeacon&&navigator.sendBeacon(U,b))return}catch(_){}try{fetch(U,{method:'POST',body:b,keepalive:true})}catch(_){}}
 function dur(){if(cur&&t0){var ms=Math.min(Date.now()-t0,1800000);if(ms>500)send({k:'d',p:cur,ms:ms})}t0=0}
-function view(){dur();cur=location.pathname;t0=Date.now();var q=new URLSearchParams(location.search),o={k:'v',p:cur,w:innerWidth,l:navigator.language||'',s:q.get('utm_source')||''};if(window.__404)o.n=1;if(first){o.r=ref;first=0}send(o)}
+function view(){dur();cur=location.pathname;t0=Date.now();var q=new URLSearchParams(location.search),o={k:'v',p:cur,w:innerWidth,l:navigator.language||'',s:q.get('utm_source')||''};try{o.z=Intl.DateTimeFormat().resolvedOptions().timeZone||''}catch(_){}if(window.__404)o.n=1;if(first){o.r=ref;first=0}send(o)}
 function ev(n){send({k:'e',n:n,p:cur||location.pathname})}
 var ps=history.pushState;history.pushState=function(){var r=ps.apply(this,arguments);view();return r};
 addEventListener('popstate',view);

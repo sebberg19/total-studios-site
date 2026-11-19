@@ -14,29 +14,69 @@ export const top = (o, n = 6) => Object.entries(o || {}).filter(([k]) => k !== '
 export const sum = o => Object.values(o || {}).reduce((a, b) => a + b, 0);
 export const share = (n, t) => (t ? Math.round((n / t) * 100) + ' %' : '');
 
-function pill(c, p, invert) {
-  if (c === null || c === undefined) return '<span style="color:#888">première semaine</span>';
-  if (Math.abs(c) < 0.005) return '<span style="color:#888">= stable</span>';
-  const good = invert ? c < 0 : c > 0;
-  const t = (c > 0 ? '▲ +' : '▼ −') + Math.abs(Math.round(c * 100)) + ' %';
-  return `<span style="display:inline-block;padding:1px 7px;font-weight:700;font-size:11px;background:${good ? '#CCFF00' : '#e9e9e9'};color:#000">${t}</span>`;
-}
-function ptsDiff(c, p) { // variation en points de pourcentage (taux de rebond)
-  if (!p) return '<span style="color:#888">première semaine</span>';
-  const d = Math.round((c - p) * 100);
-  if (!d) return '<span style="color:#888">= stable</span>';
-  const good = d < 0;
-  return `<span style="display:inline-block;padding:1px 7px;font-weight:700;font-size:11px;background:${good ? '#CCFF00' : '#e9e9e9'};color:#000">${d > 0 ? '▲ +' : '▼ −'}${Math.abs(d)} pts</span>`;
-}
+// ---------- mise en page du courriel : même esprit que le PDF (noir et blanc, titres lourds, texte mono, sections numérotées) ----------
+const SANS = "'Archivo Black','Arial Black','Helvetica Neue',Helvetica,Arial,sans-serif", MONO = "'Cascadia Mono',Menlo,Consolas,'SFMono-Regular','Courier New',monospace";
+export const paysFr = c => { if (!c || c === '?') return 'Inconnu'; if (c.length === 2) { try { return new Intl.DisplayNames(['fr'], { type: 'region' }).of(c.toUpperCase()); } catch (_) {} } return c; };
+const signed = (a, b) => (b > 0 ? `${a >= b ? '+' : '-'}${Math.abs(Math.round(((a - b) / b) * 100))} %` : null);
 
-const bar = (v, max, hl) => `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td style="height:8px;font-size:0;line-height:0;width:${max ? Math.max(2, Math.round((v / max) * 100)) : 0}%;background:${hl ? '#CCFF00' : '#000'};${hl ? 'border:1px solid #000;' : ''}">&nbsp;</td><td style="font-size:0">&nbsp;</td></tr></table>`;
+const bar = (v, max, hl) => `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td width="${max ? Math.max(2, Math.round((v / max) * 100)) : 0}%" style="height:7px;font-size:0;line-height:0;background:${hl ? '#CCFF00' : '#000'};${hl ? 'border:1px solid #000;' : ''}">&nbsp;</td><td style="font-size:0">&nbsp;</td></tr></table>`;
 
 function rows(list, opts = {}) {
-  if (!list.length) return '<tr><td style="padding:10px 0;color:#888;font-size:13px">Aucune donnée cette semaine.</td></tr>';
+  if (!list.length) return `<tr><td style="padding:12px 0;font:12px/1.5 ${MONO};color:#888">Aucune donnée cette semaine.</td></tr>`;
   const max = Math.max(...list.map(r => r.v)), tot = opts.total;
-  return list.map(r => `<tr><td style="padding:7px 0;border-bottom:1px solid #eee;font-size:13px;width:34%;vertical-align:middle">${esc(r.label)}</td><td style="padding:7px 10px;border-bottom:1px solid #eee;vertical-align:middle;width:36%">${bar(r.v, max)}</td><td style="padding:7px 0;border-bottom:1px solid #eee;font-size:13px;text-align:right;white-space:nowrap;vertical-align:middle;width:30%"><b>${nf(r.v)}</b>${tot ? `<span style="color:#888"> · ${share(r.v, tot)}</span>` : ''}${r.extra ? ' ' + r.extra : ''}</td></tr>`).join('');
+  return list.map(r => `<tr><td style="padding:9px 0;border-bottom:1px solid #d6d6d6;font:12px/1.4 ${MONO};color:#000;width:36%;vertical-align:middle">${esc(r.label)}</td><td width="34%" style="padding:9px 12px;border-bottom:1px solid #d6d6d6;vertical-align:middle">${bar(r.v, max, r.hl)}</td><td align="right" style="padding:9px 0;border-bottom:1px solid #d6d6d6;font:12px/1.4 ${MONO};white-space:nowrap;vertical-align:middle;color:#000">${nf(r.v)}${tot ? `<span style="color:#8c8c8c">  ·  ${share(r.v, tot)}</span>` : ''}${r.extra ? `<span style="color:#8c8c8c">  ·  ${esc(r.extra)}</span>` : ''}</td></tr>`).join('');
 }
-const section = (title, inner, note) => `<tr><td style="padding:30px 32px 0"><div style="font:700 11px/1 Helvetica,Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#000;border-bottom:2px solid #000;padding-bottom:8px">${esc(title)}</div><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:4px">${inner}</table>${note ? `<div style="font-size:11px;color:#888;padding-top:6px">${esc(note)}</div>` : ''}</td></tr>`;
+const sub = t => `<tr><td colspan="3" style="padding:18px 0 4px;font:700 10px/1 Helvetica,Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#8c8c8c">${esc(t)}</td></tr>`;
+const section = (num, title, inner, note) => `<tr><td style="padding:34px 40px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td width="40" valign="bottom" style="padding-bottom:9px;border-bottom:2px solid #000;font:400 18px/1 ${SANS};font-weight:900;color:#000">${String(num).padStart(2, '0')}</td><td valign="bottom" style="padding-bottom:9px;border-bottom:2px solid #000;font:400 12px/1 ${SANS};font-weight:900;letter-spacing:.01em;text-transform:uppercase;color:#000">${esc(title)}</td></tr></table><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:4px">${inner}</table>${note ? `<div style="padding-top:8px;font:11px/1.55 ${MONO};color:#8c8c8c">${esc(note)}</div>` : ''}</td></tr>`;
+const li = t => `<tr><td width="18" valign="top" style="padding:5px 0;font:13px/1.55 ${MONO};color:#000">-</td><td style="padding:5px 0;font:13px/1.55 ${MONO};color:#000">${esc(t)}</td></tr>`;
+
+export function renderReport(R, { compact = false } = {}) {
+  const { cur, prev, hist, firstDay } = R;
+  const hasPrev = prev.pv > 0;
+  const range = `${dm(cur.start)} au ${dm(cur.end)}`;
+  const delta = (a, b) => { const t = hasPrev ? signed(a, b) : null; return t ? `${t} vs sem. préc.` : '1re semaine'; };
+  const bd = hasPrev ? `${cur.bounce >= prev.bounce ? '+' : '-'}${Math.abs(Math.round((cur.bounce - prev.bounce) * 100))} pts vs sem. préc.` : '1re semaine';
+  const cell = (label, val, d) => `<td width="33%" valign="top" style="padding:18px 8px 16px 0;border-bottom:1px solid #d6d6d6"><div style="font:700 10px/1.2 Helvetica,Arial,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#8c8c8c">${label}</div><div style="padding:8px 0 7px;font:400 28px/1.1 ${SANS};font-weight:900;color:#000">${val}</div><div style="font:11px/1.4 ${MONO};color:#8c8c8c">${d}</div></td>`;
+  const kpis = `<tr><td style="padding:6px 40px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>${cell('Visiteurs', nf(cur.visitors), delta(cur.visitors, prev.visitors))}${cell('Pages vues', nf(cur.pv), delta(cur.pv, prev.pv))}${cell('Pages par visite', cur.pagesPerVisit.toFixed(1).replace('.', ','), delta(cur.pagesPerVisit, prev.pagesPerVisit))}</tr><tr>${cell('Durée moyenne', dur(cur.avgMs), delta(cur.avgMs, prev.avgMs))}${cell('Taux de rebond', Math.round(cur.bounce * 100) + ' %', bd)}${cell('Réservations envoyées', nf(cur.ev.reserver_envoyee || 0), delta(cur.ev.reserver_envoyee || 0, prev.ev.reserver_envoyee || 0))}</tr></table></td></tr>`;
+
+  let n = 0;
+  const hi = section(++n, 'Faits saillants', highlights(R).map(li).join(''));
+  const ins = section(++n, 'Points d’attention', insights(R).map(li).join(''), 'Constats tirés des chiffres de la semaine, sans interprétation.');
+
+  const hh = firstDay ? hist.filter((h, i) => i >= hist.length - 2 || h.start >= weekStartOf(firstDay)) : hist;
+  const hmax = Math.max(1, ...hh.map(h => h.visitors));
+  const progression = section(++n, 'Progression', hh.map((h, i) => { const last = i === hh.length - 1; return `<tr><td style="padding:9px 0;border-bottom:1px solid #d6d6d6;font:12px/1.4 ${MONO};white-space:nowrap;width:30%;color:${last ? '#000' : '#8c8c8c'}">${last ? '<b>' : ''}Sem. du ${dm(h.start)}${last ? '</b>' : ''}</td><td width="40%" style="padding:9px 12px;border-bottom:1px solid #d6d6d6">${bar(h.visitors, hmax, last)}</td><td align="right" style="padding:9px 0;border-bottom:1px solid #d6d6d6;font:12px/1.4 ${MONO};white-space:nowrap"><b>${nf(h.visitors)}</b><span style="color:#8c8c8c">  ·  ${nf(h.pv)} vues</span></td></tr>`; }).join(''), 'Visiteurs par semaine, du dimanche au samedi. La courbe complète est dans le PDF joint.');
+
+  const pageList = Object.entries(cur.pages).sort((a, b) => b[1].v - a[1].v).slice(0, 8).map(([k, v]) => ({ label: pageLabel(k), v: v.v, extra: v.dn ? dur(v.ms / v.dn) : '' }));
+  const pages = section(++n, 'Pages les plus visitées', rows(pageList, { total: cur.pv }), 'Vues · part du total · temps moyen sur la page.');
+  const sources = section(++n, 'D’où viennent les visiteurs', rows(top(cur.cat, 7).map(([k, v]) => ({ label: k, v })), { total: cur.arr }) + (top(cur.ref, 5).length ? sub('Sites référents') + rows(top(cur.ref, 5).map(([k, v]) => ({ label: k, v }))) : ''), 'Direct = lien tapé, signet ou application sans référent. Ajoutez ?utm_source=instagram aux liens publiés pour les distinguer.');
+  const evList = Object.keys(EVENTS).map(k => ({ label: EVENTS[k], v: cur.ev[k] || 0 }));
+  const conv = cur.visitors ? ((cur.ev.reserver_envoyee || 0) / cur.visitors) * 100 : 0;
+  const actions = section(++n, 'Actions des visiteurs', rows(evList) + `<tr><td colspan="3" style="padding:12px 0 0;font:12px/1.5 ${MONO};color:#000">Taux de conversion : <b>${conv.toFixed(1).replace('.', ',')} %</b> des visiteurs envoient une demande.</td></tr>`);
+  const geo = section(++n, 'Provenance', rows(top(cur.country, 5).map(([k, v]) => ({ label: paysFr(k), v })), { total: sum(cur.country) }) + sub('Villes') + rows(top(cur.city, 6).map(([k, v]) => ({ label: k, v })), { total: sum(cur.city) }) + (top(cur.tz, 4).length ? sub('Fuseau horaire du navigateur') + rows(top(cur.tz, 4).map(([k, v]) => ({ label: k, v })), { total: sum(cur.tz) }) : ''), 'Provenance selon l’adresse IP. Un VPN ou un Relais privé peut la fausser : le fuseau horaire du navigateur sert de vérification.');
+  const devs = section(++n, 'Appareils', rows(top(cur.dev, 3).map(([k, v]) => ({ label: k, v })), { total: sum(cur.dev) }) + sub('Navigateurs') + rows(top(cur.br, 5).map(([k, v]) => ({ label: k, v })), { total: sum(cur.br) }) + sub('Langue du navigateur') + rows(top(cur.lang, 4).map(([k, v]) => ({ label: ({ fr: 'Français', en: 'Anglais', es: 'Espagnol', pt: 'Portugais', '?': 'Inconnue' })[k] || k.toUpperCase(), v })), { total: sum(cur.lang) }));
+  const lost = Object.keys(cur.nf).length ? section(++n, 'Pages introuvables (404)', rows(top(cur.nf, 5).map(([k, v]) => ({ label: k, v })))) : '';
+  const pj = `<tr><td style="padding:34px 40px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:2px solid #000"><tr><td style="padding:16px 20px;font:12px/1.65 ${MONO};color:#000"><b style="font:400 12px/1 ${SANS};font-weight:900;letter-spacing:.01em;text-transform:uppercase">Rapport complet en pièce jointe (PDF)</b><br><span style="display:block;padding-top:8px">Courbe de progression, jour par jour, pages d’entrée, entonnoir de réservation, appareils, heures de visite et données compactes. Gardez les PDF de chaque semaine pour suivre l’évolution.</span></td></tr></table></td></tr>`;
+
+  const body = (compact ? [kpis, hi, ins, progression, pages, sources, pj] : [kpis, hi, ins, progression, pages, sources, actions, geo, devs, lost]).join('');
+  const since = firstDay ? `Collecte active depuis le ${dm(firstDay)}.` : '';
+  const html = `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light only"><meta name="supported-color-schemes" content="light only"><title>Rapport hebdomadaire TOTAL STUDIOS</title></head><body style="margin:0;padding:0;background:#ffffff" bgcolor="#ffffff"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#ffffff" style="background:#ffffff"><tr><td align="center"><table role="presentation" width="640" cellpadding="0" cellspacing="0" bgcolor="#ffffff" style="width:100%;max-width:640px;background:#ffffff;color:#000">
+<tr><td style="padding:40px 40px 0"><img src="https://totalstudios.ca/logo-email.png" width="190" alt="TOTAL STUDIOS" style="display:block;border:0;width:190px;max-width:60%;height:auto;background:#fff"></td></tr>
+<tr><td style="padding:34px 40px 0;font:11px/1.4 ${MONO};color:#8c8c8c;letter-spacing:.04em">RAPPORT HEBDOMADAIRE  ·  totalstudios.ca</td></tr>
+<tr><td style="padding:16px 40px 0"><div style="font:400 34px/1.02 ${SANS};font-weight:900;letter-spacing:-.02em;text-transform:uppercase;color:#000">Semaine du<br>${esc(range)}</div></td></tr>
+<tr><td style="padding:22px 40px 0"><div style="border-top:2px solid #000;font-size:0;line-height:0">&nbsp;</div></td></tr>
+${body}
+<tr><td style="padding:40px 40px 36px"><div style="border-top:1px solid #d6d6d6;padding-top:14px;font:11px/1.65 ${MONO};color:#8c8c8c">TOTAL STUDIOS  ·  info@totalstudios.ca<br>Statistiques de totalstudios.ca, sans témoin (cookie) ni adresse IP conservée. ${esc(since)} Un visiteur correspond à un appareil et un navigateur dans la semaine. Vos propres visites sont exclues avec totalstudios.ca/?notrack sur chaque appareil. Rapport envoyé chaque dimanche à 10 h.</div></td></tr>
+</table></td></tr></table></body></html>`;
+
+  const L = [];
+  const d = (a, b) => { const t = hasPrev ? signed(a, b) : null; return t ? ` (${t})` : ''; };
+  L.push(`TOTAL STUDIOS | Rapport hebdomadaire | Semaine du ${range}`, '');
+  L.push(`Visiteurs : ${nf(cur.visitors)}${d(cur.visitors, prev.visitors)}`, `Pages vues : ${nf(cur.pv)}${d(cur.pv, prev.pv)}`, `Pages par visite : ${cur.pagesPerVisit.toFixed(1)}`, `Durée moyenne : ${dur(cur.avgMs)}`, `Taux de rebond : ${Math.round(cur.bounce * 100)} %`, `Réservations envoyées : ${cur.ev.reserver_envoyee || 0}`, '', ...highlights(R).map(t => '- ' + t), '', 'Points d’attention :', ...insights(R).map(t => '- ' + t), '', 'Le rapport complet est en pièce jointe (PDF).');
+  const sd = hasPrev && prev.visitors ? ` (${signed(cur.visitors, prev.visitors)})` : '';
+  const subject = `Rapport hebdo TOTAL STUDIOS | ${range} : ${nf(cur.visitors)} visiteur${cur.visitors > 1 ? 's' : ''}${sd}`;
+  return { html, text: L.join('\n'), subject };
+}
 
 export function highlights(R) {
   const { cur, prev } = R, out = [];
@@ -54,74 +94,6 @@ export function highlights(R) {
   const r = cur.ev.reserver_envoyee || 0;
   if (r) out.push(`${nf(r)} demande${r > 1 ? 's' : ''} de réservation envoyée${r > 1 ? 's' : ''}.`);
   return out.slice(0, 5);
-}
-
-export function renderReport(R, { compact = false } = {}) {
-  const { cur, prev, hist, firstDay } = R;
-  const hasPrev = prev.pv > 0;
-  const p = (a, b, inv) => pill(hasPrev ? pct(a, b) : null, b, inv);
-  const range = `${dm(cur.start)} au ${dm(cur.end)}`;
-  const kpi = (label, val, delta) => `<td width="33%" style="padding:16px 12px 14px 0;vertical-align:top"><div style="font-size:11px;color:#777;letter-spacing:.06em;text-transform:uppercase">${label}</div><div style="font:900 26px/1.15 Helvetica,Arial,sans-serif;color:#000;padding:4px 0 6px">${val}</div><div>${delta}</div></td>`;
-  const kpis = `<tr><td style="padding:12px 32px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
-    ${kpi('Visiteurs', nf(cur.visitors), p(cur.visitors, prev.visitors))}${kpi('Pages vues', nf(cur.pv), p(cur.pv, prev.pv))}${kpi('Pages par visite', cur.pagesPerVisit.toFixed(1).replace('.', ','), p(cur.pagesPerVisit, prev.pagesPerVisit))}</tr><tr>
-    ${kpi('Durée moyenne', dur(cur.avgMs), p(cur.avgMs, prev.avgMs))}${kpi('Taux de rebond', Math.round(cur.bounce * 100) + ' %', hasPrev ? ptsDiff(cur.bounce, prev.bounce) : pill(null))}${kpi('Réservations', nf(cur.ev.reserver_envoyee || 0), p(cur.ev.reserver_envoyee || 0, prev.ev.reserver_envoyee || 0))}</tr></table></td></tr>`;
-
-  const hi = highlights(R);
-  const hiHtml = `<tr><td style="padding:22px 32px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f5"><tr><td style="padding:14px 18px;font-size:13px;line-height:1.7">${hi.map(t => `<div>• ${esc(t)}</div>`).join('')}</td></tr></table></td></tr>`;
-
-  // progression sur 8 semaines
-  const hh = firstDay ? hist.filter((h, i) => i >= hist.length - 2 || h.start >= weekStartOf(firstDay)) : hist;
-  const hmax = Math.max(1, ...hh.map(h => h.visitors));
-  const progression = section('Progression, dernières semaines', hh.map((h, i) => {
-    const last = i === hh.length - 1;
-    return `<tr><td style="padding:6px 0;font-size:12px;width:21%;color:${last ? '#000' : '#777'};font-weight:${last ? 700 : 400};white-space:nowrap">Sem. du ${dm(h.start)}</td><td style="padding:6px 10px;width:40%">${bar(h.visitors, hmax, last)}</td><td style="padding:6px 0;font-size:13px;text-align:right;white-space:nowrap"><b>${nf(h.visitors)}</b> <span style="color:#888;font-size:11px">visiteurs · ${nf(h.pv)} vues</span></td></tr>`;
-  }).join(''), 'Chaque barre représente le nombre de visiteurs de la semaine (du dimanche au samedi).');
-
-  // jour par jour
-  const dmax = Math.max(1, ...cur.perDay.map(d => d.uv));
-  const jours = section('Jour par jour', cur.perDay.map(d => `<tr><td style="padding:6px 0;font-size:12px;width:21%;color:#555">${JC[dowOf(d.day)]} ${dm(d.day)}</td><td style="padding:6px 10px;width:40%">${bar(d.uv, dmax)}</td><td style="padding:6px 0;font-size:13px;text-align:right;white-space:nowrap"><b>${nf(d.uv)}</b> <span style="color:#888;font-size:11px">visiteurs · ${nf(d.pv)} vues</span></td></tr>`).join(''));
-
-  // pages
-  const pageList = Object.entries(cur.pages).sort((a, b) => b[1].v - a[1].v).slice(0, 8).map(([k, v]) => {
-    const dd = prev.pv ? v.v - (prev.pages[k]?.v || 0) : null;
-    return { label: pageLabel(k), v: v.v, extra: `<span style="color:#888;font-size:11px">${v.dn ? dur(v.ms / v.dn) : ''}${dd === null ? '' : (v.dn ? ' · ' : '') + (dd > 0 ? '+' : dd < 0 ? '−' : '') + Math.abs(dd)}</span>` };
-  });
-  const pages = section('Pages les plus visitées', rows(pageList, { total: cur.pv }), 'Vues de la semaine · temps moyen sur la page · écart avec la semaine précédente.');
-  const entry = section('Pages d’entrée', rows(top(cur.entry, 5).map(([k, v]) => ({ label: pageLabel(k), v })), { total: sum(cur.entry) }), 'Première page vue par chaque visiteur.');
-
-  const catList = top(cur.cat, 7).map(([k, v]) => ({ label: k, v, extra: prev.arr ? '' : '' }));
-  const sources = section('D’où viennent les visiteurs', rows(catList, { total: cur.arr }) + (top(cur.ref, 5).length ? `<tr><td colspan="3" style="padding:12px 0 2px;font-size:11px;color:#888;letter-spacing:.06em;text-transform:uppercase">Sites référents</td></tr>` + rows(top(cur.ref, 5).map(([k, v]) => ({ label: k, v }))) : ''), 'Direct = lien tapé, signet ou application sans référent (souvent Instagram ou un message). Ajoutez ?utm_source=instagram aux liens que vous publiez pour les distinguer.');
-
-  const evList = Object.keys(EVENTS).map(k => ({ label: EVENTS[k], v: cur.ev[k] || 0, extra: hasPrev ? `<span style="color:#888;font-size:11px">${((cur.ev[k] || 0) - (prev.ev[k] || 0) >= 0 ? '+' : '−') + Math.abs((cur.ev[k] || 0) - (prev.ev[k] || 0))}</span>` : '' }));
-  const conv = cur.visitors ? ((cur.ev.reserver_envoyee || 0) / cur.visitors) : 0;
-  const actions = section('Actions des visiteurs', rows(evList.filter(e => e.v > 0 || ['reserver_envoyee', 'reserver_debut', 'mail', 'instagram', 'facebook'].some(k => EVENTS[k] === e.label))) + `<tr><td colspan="3" style="padding:10px 0 0;font-size:12px;color:#555">Taux de conversion : <b>${(conv * 100).toFixed(1).replace('.', ',')} %</b> des visiteurs envoient une demande de réservation.</td></tr>`, 'Les clics sur Instagram et Facebook comptent même avant que les liens soient actifs.');
-
-  const geo = section('Provenance', rows(top(cur.country, 5).map(([k, v]) => ({ label: k, v })), { total: sum(cur.country) }) + `<tr><td colspan="3" style="padding:12px 0 2px;font-size:11px;color:#888;letter-spacing:.06em;text-transform:uppercase">Villes</td></tr>` + rows(top(cur.city, 6).map(([k, v]) => ({ label: k, v })), { total: sum(cur.city) }));
-
-  const devs = section('Appareils', rows(top(cur.dev, 3).map(([k, v]) => ({ label: k, v })), { total: sum(cur.dev) }) + `<tr><td colspan="3" style="padding:12px 0 2px;font-size:11px;color:#888;letter-spacing:.06em;text-transform:uppercase">Navigateurs</td></tr>` + rows(top(cur.br, 5).map(([k, v]) => ({ label: k, v })), { total: sum(cur.br) }) + `<tr><td colspan="3" style="padding:12px 0 2px;font-size:11px;color:#888;letter-spacing:.06em;text-transform:uppercase">Systèmes</td></tr>` + rows(top(cur.os, 4).map(([k, v]) => ({ label: k, v })), { total: sum(cur.os) }) + `<tr><td colspan="3" style="padding:12px 0 2px;font-size:11px;color:#888;letter-spacing:.06em;text-transform:uppercase">Langue du navigateur</td></tr>` + rows(top(cur.lang, 4).map(([k, v]) => ({ label: ({ fr: 'Français', en: 'Anglais', es: 'Espagnol', pt: 'Portugais', '?': 'Inconnue' })[k] || k.toUpperCase(), v })), { total: sum(cur.lang) }));
-
-  const hmaxh = Math.max(1, ...cur.hour);
-  const heures = section('Heures de visite', `<tr><td style="padding:10px 0 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="table-layout:fixed"><tr>${cur.hour.map(v => `<td valign="bottom" style="height:64px;padding:0 1px"><div style="background:#000;height:${Math.max(v ? 3 : 1, Math.round((v / hmaxh) * 60))}px;font-size:0;line-height:0">&nbsp;</div></td>`).join('')}</tr><tr>${cur.hour.map((v, h) => `<td align="center" style="font-size:9px;color:#888;padding-top:3px">${h % 3 === 0 ? h : ''}</td>`).join('')}</tr></table></td></tr>`, 'Heure de Montréal, vues de page.');
-
-  const nfPages = Object.entries(cur.nf);
-  const lost = nfPages.length ? section('Pages introuvables (404)', rows(top(cur.nf, 5).map(([k, v]) => ({ label: k, v })))) : '';
-
-  const since = firstDay ? `Collecte active depuis le ${dm(firstDay)}.` : '';
-  const pj = `<tr><td style="padding:26px 32px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:2px solid #000"><tr><td style="padding:14px 18px;font-size:13px;line-height:1.6"><b>Rapport complet en pièce jointe (PDF).</b><br>Pages, sources, actions, entonnoir de réservation, villes, appareils et historique. Conservez les PDF de chaque semaine pour suivre la progression.</td></tr></table></td></tr>`;
-  const body = (compact ? [kpis, hiHtml, progression, pj] : [kpis, hiHtml, progression, jours, pages, entry, sources, actions, geo, devs, heures, lost]).join('');
-  const html = `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"></head><body style="margin:0;padding:0;background:#ececec"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#ececec"><tr><td align="center" style="padding:24px 10px"><table role="presentation" width="640" cellpadding="0" cellspacing="0" style="width:100%;max-width:640px;background:#fff;font-family:Helvetica,Arial,sans-serif;color:#000">
-<tr><td style="background:#000;padding:30px 32px 26px"><div style="font:900 22px/1 Helvetica,Arial,sans-serif;letter-spacing:.06em;color:#fff">TOTAL STUDIOS</div><div style="font:700 11px/1 Helvetica,Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:#CCFF00;padding-top:16px">Rapport hebdomadaire</div><div style="font:400 15px/1.3 Helvetica,Arial,sans-serif;color:#fff;padding-top:8px">Semaine du ${range}</div></td></tr>
-${body}
-<tr><td style="padding:34px 32px 30px"><div style="border-top:1px solid #ddd;padding-top:14px;font-size:11px;line-height:1.6;color:#888">Statistiques de totalstudios.ca, sans témoin (cookie) ni adresse IP conservée. ${esc(since)} Un visiteur correspond à un appareil et un navigateur pendant la semaine. Les visites de l’équipe peuvent être exclues en ouvrant totalstudios.ca/?notrack sur chaque appareil. Rapport envoyé chaque dimanche.</div></td></tr>
-</table></td></tr></table></body></html>`;
-
-  const L = [];
-  L.push(`TOTAL STUDIOS | Rapport hebdomadaire | Semaine du ${range}`, '');
-  const d = (a, b) => (hasPrev && b ? ` (${a >= b ? '+' : '−'}${Math.abs(Math.round(((a - b) / b) * 100))} %)` : '');
-  L.push(`Visiteurs : ${nf(cur.visitors)}${d(cur.visitors, prev.visitors)}`, `Pages vues : ${nf(cur.pv)}${d(cur.pv, prev.pv)}`, `Pages par visite : ${cur.pagesPerVisit.toFixed(1)}`, `Durée moyenne : ${dur(cur.avgMs)}`, `Taux de rebond : ${Math.round(cur.bounce * 100)} %`, `Réservations envoyées : ${cur.ev.reserver_envoyee || 0}`, '', ...hi.map(t => '• ' + t), '');
-  L.push('Pages les plus visitées :', ...Object.entries(cur.pages).sort((a, b) => b[1].v - a[1].v).slice(0, 8).map(([k, v]) => `  ${pageLabel(k)} : ${v.v}`), '', 'Sources :', ...top(cur.cat, 7).map(([k, v]) => `  ${k} : ${v}`), '', 'Villes :', ...top(cur.city, 6).map(([k, v]) => `  ${k} : ${v}`), '', 'Ouvrez ce courriel en HTML pour voir le rapport complet.');
-  const subject = `Rapport hebdo TOTAL STUDIOS | ${range} : ${nf(cur.visitors)} visiteur${cur.visitors > 1 ? 's' : ''}${hasPrev && prev.visitors ? ` (${cur.visitors >= prev.visitors ? '+' : '−'}${Math.abs(Math.round(((cur.visitors - prev.visitors) / prev.visitors) * 100))} %)` : ''}`;
-  return { html, text: L.join('\n'), subject };
 }
 
 // Constats chiffrés (sans interprétation) qui aident à repérer où optimiser.

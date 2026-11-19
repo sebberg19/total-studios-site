@@ -63,7 +63,7 @@ export async function ingest(store, b, meta) {
     Object.assign(ev, {
       dev: w && w < 768 ? 'Mobile' : w && w < 1100 ? 'Tablette' : 'Ordinateur', br, os,
       lang: clip(b.l, 2).toLowerCase() || '?',
-      co: clip(meta.geo?.country?.name || meta.geo?.country?.code, 40), ci: clip(meta.geo?.city, 40), rg: clip(meta.geo?.subdivision?.code, 6),
+      co: clip(meta.geo?.country?.code || meta.geo?.country?.name, 40), tz: clip(b.z, 40), ci: clip(meta.geo?.city, 40), rg: clip(meta.geo?.subdivision?.code, 6),
     });
     if (b.n) ev.nf = 1;
     if ('r' in b) {
@@ -90,7 +90,7 @@ async function getSalt(store, week) {
 }
 
 // ---------- regroupement par jour ----------
-const blank = day => ({ day, pv: 0, arr: 0, ev: {}, pages: {}, entry: {}, ref: {}, cat: {}, utm: {}, country: {}, city: {}, dev: {}, br: {}, os: {}, lang: {}, hour: Array(24).fill(0), nf: {}, v: {} });
+const blank = day => ({ day, pv: 0, arr: 0, ev: {}, pages: {}, entry: {}, ref: {}, cat: {}, utm: {}, country: {}, tz: {}, city: {}, dev: {}, br: {}, os: {}, lang: {}, hour: Array(24).fill(0), nf: {}, v: {} });
 const inc = (o, k, n = 1) => { if (k === undefined || k === '') return; if (!(k in o) && Object.keys(o).length >= 300) k = '(autres)'; o[k] = (o[k] || 0) + n; };
 
 export function apply(s, e) {
@@ -99,7 +99,7 @@ export function apply(s, e) {
     s.pv++; v.n++;
     s.hour[hourOf(e.t)]++;
     const pg = s.pages[e.p] || (s.pages[e.p] = { v: 0, ms: 0, dn: 0 }); pg.v++;
-    if (v.n === 1) { v.e = e.p; inc(s.entry, e.p); inc(s.dev, e.dev); inc(s.br, e.br); inc(s.os, e.os); inc(s.lang, e.lang); inc(s.country, e.co); inc(s.city, e.ci ? e.ci + (e.rg ? ', ' + e.rg : '') : ''); }
+    if (v.n === 1) { v.e = e.p; inc(s.entry, e.p); inc(s.dev, e.dev); inc(s.br, e.br); inc(s.os, e.os); inc(s.lang, e.lang); inc(s.country, e.co); inc(s.tz, e.tz); inc(s.city, e.ci ? e.ci + (e.rg ? ', ' + e.rg : '') : ''); }
     if (e.nf) inc(s.nf, e.p);
     if (e.arr) { s.arr++; inc(s.cat, e.rc); inc(s.ref, e.rh); inc(s.utm, e.u); }
   } else if (e.k === 'd') {
@@ -139,14 +139,14 @@ export async function compactAll(store) {
 // ---------- agrégation hebdomadaire ----------
 const merge = (a, b) => { for (const k in b) a[k] = (a[k] || 0) + b[k]; };
 export function weekAgg(days, start) {
-  const a = { start, end: addDays(start, 6), pv: 0, arr: 0, ev: {}, pages: {}, entry: {}, ref: {}, cat: {}, utm: {}, country: {}, city: {}, dev: {}, br: {}, os: {}, lang: {}, hour: Array(24).fill(0), nf: {}, sumUv: 0, bn: 0, vms: 0, vdn: 0, perDay: [], first: null };
+  const a = { start, end: addDays(start, 6), pv: 0, arr: 0, ev: {}, pages: {}, entry: {}, ref: {}, cat: {}, utm: {}, country: {}, tz: {}, city: {}, dev: {}, br: {}, os: {}, lang: {}, hour: Array(24).fill(0), nf: {}, sumUv: 0, bn: 0, vms: 0, vdn: 0, perDay: [], first: null };
   const U = new Set(); let allV = true;
   days.forEach((d, i) => {
     const day = addDays(start, i);
     if (!d) { a.perDay.push({ day, pv: 0, uv: 0 }); return; }
     if (!a.first) a.first = day;
     a.pv += d.pv; a.arr += d.arr; a.sumUv += d.uv || 0; a.bn += d.bn || 0; a.vms += d.vms || 0; a.vdn += d.vdn || 0;
-    for (const f of ['ev', 'entry', 'ref', 'cat', 'utm', 'country', 'city', 'dev', 'br', 'os', 'lang', 'nf']) merge(a[f], d[f] || {});
+    for (const f of ['ev', 'entry', 'ref', 'cat', 'utm', 'country', 'tz', 'city', 'dev', 'br', 'os', 'lang', 'nf']) merge(a[f], d[f] || {});
     d.hour.forEach((x, h) => a.hour[h] += x);
     for (const p in d.pages) { const g = a.pages[p] || (a.pages[p] = { v: 0, ms: 0, dn: 0 }); g.v += d.pages[p].v; g.ms += d.pages[p].ms; g.dn += d.pages[p].dn; }
     if (d.v) Object.keys(d.v).forEach(h => U.add(h)); else if (d.uv) allV = false;

@@ -5,7 +5,7 @@ import fontkit from '@pdf-lib/fontkit';
 import F from '../functions/fonts.js';
 import LOGO from '../functions/logo.js';
 import { EVENTS, pageLabel } from './stats.mjs';
-import { nf, dm, dur, top, sum, share, pct, JC, JOURS, dowOf, highlights, insights } from './report-html.mjs';
+import { nf, dm, dur, top, sum, share, pct, JC, JOURS, dowOf, highlights, insights, paysFr } from './report-html.mjs';
 
 const W = 612, H = 792, M = 48, CW = W - 2 * M;
 const BLACK = rgb(0, 0, 0), GREY = rgb(0.5, 0.5, 0.5), LINE = rgb(0.8, 0.8, 0.8), LIME = rgb(0.8, 1, 0), PALE = rgb(0.93, 0.93, 0.93);
@@ -146,8 +146,10 @@ export async function buildReportPdf(R) {
 
   // ---- Provenance, appareils ----
   section('Provenance', ++n);
-  barRows(top(cur.country, 5).map(([k, v]) => ({ label: k, v })), { total: sum(cur.country) });
+  barRows(top(cur.country, 5).map(([k, v]) => ({ label: paysFr(k), v })), { total: sum(cur.country) });
   sub('Villes'); barRows(top(cur.city, 8).map(([k, v]) => ({ label: k, v })), { total: sum(cur.city) });
+  if (top(cur.tz, 4).length) { sub('Fuseau horaire du navigateur'); barRows(top(cur.tz, 4).map(([k, v]) => ({ label: k, v })), { total: sum(cur.tz) }); }
+  note('Provenance selon l’adresse IP. Un VPN ou un Relais privé peut la fausser : le fuseau horaire du navigateur sert de vérification.');
   section('Appareils', ++n);
   barRows(top(cur.dev, 3).map(([k, v]) => ({ label: k, v })), { total: sum(cur.dev) });
   sub('Navigateurs'); barRows(top(cur.br, 5).map(([k, v]) => ({ label: k, v })), { total: sum(cur.br) });
@@ -169,7 +171,7 @@ export async function buildReportPdf(R) {
     `reservations_envoyees=${cur.ev.reserver_envoyee || 0}`, `formulaires_commences=${cur.ev.reserver_debut || 0}`,
     `visiteurs_semaine_precedente=${prev.visitors}`, `pages_vues_semaine_precedente=${prev.pv}`,
     `sources=${top(cur.cat, 8).map(([k, v]) => k + ':' + v).join(' ')}`, `pages=${Object.entries(cur.pages).sort((a, b) => b[1].v - a[1].v).slice(0, 8).map(([k, v]) => k + ':' + v.v).join(' ')}`,
-    `appareils=${top(cur.dev, 3).map(([k, v]) => k + ':' + v).join(' ')}`, `villes=${top(cur.city, 6).map(([k, v]) => k.replace(/ /g, '_') + ':' + v).join(' ')}`,
+    `appareils=${top(cur.dev, 3).map(([k, v]) => k + ':' + v).join(' ')}`, `pays=${top(cur.country, 4).map(([k, v]) => k + ':' + v).join(' ')}`, `fuseaux=${top(cur.tz, 4).map(([k, v]) => k + ':' + v).join(' ')}`, `villes=${top(cur.city, 6).map(([k, v]) => k.replace(/ /g, '_') + ':' + v).join(' ')}`,
     `evenements=${Object.entries(cur.ev).map(([k, v]) => k + ':' + v).join(' ')}`,
     ...hh.map(h => `historique ${h.start} visiteurs=${h.visitors} pages_vues=${h.pv} duree_s=${Math.round(h.ms / 1000)} rebond=${h.bounce.toFixed(3)} reservations=${h.reservations}`),
   ];

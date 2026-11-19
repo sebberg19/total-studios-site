@@ -16,7 +16,8 @@ exports.handler = async event => {
   const to = (process.env.NOTIFY_TO || 'info@totalstudios.ca').split(',').map(s => s.trim()).filter(Boolean);
   const from = process.env.NOTIFY_FROM || 'TOTAL STUDIOS <onboarding@resend.dev>';
 
-  const pdf = await buildPdf(d, { number: payload.number, created: payload.created_at });
+  let pdf = null;
+  try { pdf = await buildPdf(d, { number: payload.number, created: payload.created_at }); } catch (e) { console.error('Échec PDF, courriel envoyé sans pièce jointe', e); }
   const dates = fmtDates(d.dates);
   const when = dates.length > 1 ? `${dates[0]} (+${dates.length - 1})` : (dates[0] || '');
   const who = clean(d.organisation) || clean(d.nom);
@@ -29,7 +30,8 @@ exports.handler = async event => {
   const text = 'Nouvelle demande de réservation reçue sur totalstudios.ca.\n\n' + lines.map(([k, v]) => `${k} : ${clean(v)}`).join('\n') + '\n\nLe PDF complet est en pièce jointe. Répondez à ce courriel pour écrire directement au client.';
   const html = `<div style="font:14px/1.6 Helvetica,Arial,sans-serif;color:#000"><p><b>Nouvelle demande de réservation</b> reçue sur totalstudios.ca.</p><table cellpadding="4" style="border-collapse:collapse">${lines.map(([k, v]) => `<tr><td style="color:#777">${esc(k)}</td><td>${esc(clean(v))}</td></tr>`).join('')}</table><p>Le PDF complet est en pièce jointe. Répondez à ce courriel pour écrire directement au client.</p></div>`;
 
-  const body = { from, to, subject, text, html, attachments: [{ filename: `Demande-reservation-${payload.number || 'nouvelle'}.pdf`, content: pdf.toString('base64') }] };
+  const body = { from, to, subject, text, html };
+  if (pdf) body.attachments = [{ filename: `Demande-reservation-${payload.number || 'nouvelle'}.pdf`, content: pdf.toString('base64') }];
   const email = clean(d.courriel);
   if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) body.reply_to = email;
 
