@@ -1,18 +1,18 @@
 // Mise en page du rapport hebdomadaire (courriel HTML + version texte).
 import { EVENTS, pageLabel, weekStartOf } from './stats.mjs';
 
-const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-const nf = n => Math.round(n).toLocaleString('fr-CA').replace(/ | /g, ' ');
-const MOIS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
-const JOURS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
-const JC = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];
-const dm = d => { const [, m, j] = d.split('-'); return `${+j} ${MOIS[+m - 1]}`; };
-const dowOf = d => new Date(d + 'T12:00:00Z').getUTCDay();
-const dur = ms => { if (!ms) return '0 s'; const s = Math.round(ms / 1000); return s >= 60 ? `${Math.floor(s / 60)} min ${String(s % 60).padStart(2, '0')} s` : `${s} s`; };
-const pct = (a, b) => (b > 0 ? (a - b) / b : null);
-const top = (o, n = 6) => Object.entries(o || {}).filter(([k]) => k !== '(autres)').sort((a, b) => b[1] - a[1]).slice(0, n);
-const sum = o => Object.values(o || {}).reduce((a, b) => a + b, 0);
-const share = (n, t) => (t ? Math.round((n / t) * 100) + ' %' : '');
+export const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+export const nf = n => Math.round(n).toLocaleString('fr-CA').replace(/ | /g, ' ');
+export const MOIS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
+export const JOURS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+export const JC = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];
+export const dm = d => { const [, m, j] = d.split('-'); return `${+j} ${MOIS[+m - 1]}`; };
+export const dowOf = d => new Date(d + 'T12:00:00Z').getUTCDay();
+export const dur = ms => { if (!ms) return '0 s'; const s = Math.round(ms / 1000); return s >= 60 ? `${Math.floor(s / 60)} min ${String(s % 60).padStart(2, '0')} s` : `${s} s`; };
+export const pct = (a, b) => (b > 0 ? (a - b) / b : null);
+export const top = (o, n = 6) => Object.entries(o || {}).filter(([k]) => k !== '(autres)').sort((a, b) => b[1] - a[1]).slice(0, n);
+export const sum = o => Object.values(o || {}).reduce((a, b) => a + b, 0);
+export const share = (n, t) => (t ? Math.round((n / t) * 100) + ' %' : '');
 
 function pill(c, p, invert) {
   if (c === null || c === undefined) return '<span style="color:#888">première semaine</span>';
@@ -56,7 +56,7 @@ export function highlights(R) {
   return out.slice(0, 5);
 }
 
-export function renderReport(R) {
+export function renderReport(R, { compact = false } = {}) {
   const { cur, prev, hist, firstDay } = R;
   const hasPrev = prev.pv > 0;
   const p = (a, b, inv) => pill(hasPrev ? pct(a, b) : null, b, inv);
@@ -107,7 +107,8 @@ export function renderReport(R) {
   const lost = nfPages.length ? section('Pages introuvables (404)', rows(top(cur.nf, 5).map(([k, v]) => ({ label: k, v })))) : '';
 
   const since = firstDay ? `Collecte active depuis le ${dm(firstDay)}.` : '';
-  const body = [kpis, hiHtml, progression, jours, pages, entry, sources, actions, geo, devs, heures, lost].join('');
+  const pj = `<tr><td style="padding:26px 32px 0"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:2px solid #000"><tr><td style="padding:14px 18px;font-size:13px;line-height:1.6"><b>Rapport complet en pièce jointe (PDF).</b><br>Pages, sources, actions, entonnoir de réservation, villes, appareils et historique. Conservez les PDF de chaque semaine pour suivre la progression.</td></tr></table></td></tr>`;
+  const body = (compact ? [kpis, hiHtml, progression, pj] : [kpis, hiHtml, progression, jours, pages, entry, sources, actions, geo, devs, heures, lost]).join('');
   const html = `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"></head><body style="margin:0;padding:0;background:#ececec"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#ececec"><tr><td align="center" style="padding:24px 10px"><table role="presentation" width="640" cellpadding="0" cellspacing="0" style="width:100%;max-width:640px;background:#fff;font-family:Helvetica,Arial,sans-serif;color:#000">
 <tr><td style="background:#000;padding:30px 32px 26px"><div style="font:900 22px/1 Helvetica,Arial,sans-serif;letter-spacing:.06em;color:#fff">TOTAL STUDIOS</div><div style="font:700 11px/1 Helvetica,Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:#CCFF00;padding-top:16px">Rapport hebdomadaire</div><div style="font:400 15px/1.3 Helvetica,Arial,sans-serif;color:#fff;padding-top:8px">Semaine du ${range}</div></td></tr>
 ${body}
@@ -121,4 +122,19 @@ ${body}
   L.push('Pages les plus visitées :', ...Object.entries(cur.pages).sort((a, b) => b[1].v - a[1].v).slice(0, 8).map(([k, v]) => `  ${pageLabel(k)} : ${v.v}`), '', 'Sources :', ...top(cur.cat, 7).map(([k, v]) => `  ${k} : ${v}`), '', 'Villes :', ...top(cur.city, 6).map(([k, v]) => `  ${k} : ${v}`), '', 'Ouvrez ce courriel en HTML pour voir le rapport complet.');
   const subject = `Rapport hebdo TOTAL STUDIOS | ${range} : ${nf(cur.visitors)} visiteur${cur.visitors > 1 ? 's' : ''}${hasPrev && prev.visitors ? ` (${cur.visitors >= prev.visitors ? '+' : '−'}${Math.abs(Math.round(((cur.visitors - prev.visitors) / prev.visitors) * 100))} %)` : ''}`;
   return { html, text: L.join('\n'), subject };
+}
+
+// Constats chiffrés (sans interprétation) qui aident à repérer où optimiser.
+export function insights(R) {
+  const { cur, prev } = R, out = [], v = cur.visitors;
+  const debut = cur.ev.reserver_debut || 0, env = cur.ev.reserver_envoyee || 0, rv = cur.pages['/reserver/']?.v || 0;
+  if (debut >= 3 && env / debut < 0.6) out.push(`Formulaire de réservation : ${nf(env)} envoi${env > 1 ? 's' : ''} pour ${nf(debut)} formulaire${debut > 1 ? 's' : ''} commencé${debut > 1 ? 's' : ''} (${Math.round((env / debut) * 100)} %). Une partie des visiteurs abandonne en cours de route.`);
+  if (v >= 20 && rv / v < 0.1) out.push(`Seulement ${Math.round((rv / v) * 100)} % des visiteurs ouvrent la page Réserver (${nf(rv)} vues pour ${nf(v)} visiteurs).`);
+  if (v >= 20 && cur.bounce > 0.6) out.push(`Taux de rebond élevé : ${Math.round(cur.bounce * 100)} % des visites s’arrêtent à une seule page.`);
+  const mob = (cur.dev.Mobile || 0) / (sum(cur.dev) || 1);
+  if (v >= 20 && mob >= 0.6) out.push(`${Math.round(mob * 100)} % des visiteurs sont sur mobile.`);
+  if (prev.visitors >= 10 && v < prev.visitors * 0.8) out.push(`Baisse de ${Math.round((1 - v / prev.visitors) * 100)} % des visiteurs par rapport à la semaine précédente.`);
+  const dir = (cur.cat.Direct || 0) / (cur.arr || 1);
+  if (cur.arr >= 20 && dir > 0.6) out.push(`${Math.round(dir * 100)} % des arrivées sont directes : la source réelle de ces visites est inconnue (ajouter ?utm_source= aux liens publiés).`);
+  return out.length ? out.slice(0, 5) : ['Aucun signal particulier cette semaine.'];
 }
