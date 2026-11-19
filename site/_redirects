@@ -5,3 +5,6 @@
 /a-propos/index.html /a-propos/ 301!
 /contact/index.html /contact/ 301!
 /reserver/index.html /reserver/ 301!
+/carte/index.html /carte/ 301!
+/carte /carte/ 301!
+/qr /.netlify/functions/qr 200!

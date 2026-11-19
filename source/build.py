@@ -79,7 +79,7 @@ window.addEventListener('popstate',()=>{const p=location.pathname.replace(/^\\/|
     d=OUT+path; os.makedirs(d,exist_ok=True); open(d+'index.html','w',encoding='utf8').write(h)
 # static files
 [shutil.copy(ROOT+'/source/assets/'+f,OUT+'/'+f) for f in ['og.png','favicon-noir.svg','favicon-blanc.svg','favicon-noir-64.png','favicon-blanc-64.png','apple-touch-icon.png']]
-open(OUT+'/_redirects','w').write('/index.html / 301!\n/accueil / 301!\n/galerie/index.html /galerie/ 301!\n/services/index.html /services/ 301!\n/a-propos/index.html /a-propos/ 301!\n/contact/index.html /contact/ 301!\n/reserver/index.html /reserver/ 301!\n')
+open(OUT+'/_redirects','w').write('/index.html / 301!\n/accueil / 301!\n/galerie/index.html /galerie/ 301!\n/services/index.html /services/ 301!\n/a-propos/index.html /a-propos/ 301!\n/contact/index.html /contact/ 301!\n/reserver/index.html /reserver/ 301!\n/carte/index.html /carte/ 301!\n/carte /carte/ 301!\n/qr /.netlify/functions/qr 200!\n')
 four=open(OUT+'/contact/index.html',encoding='utf8').read()
 four=re.sub(r'<title>.*?</title>','<title>Total Studios Montréal | Page introuvable</title>',four,count=1,flags=re.S)
 four=re.sub(r'<meta name="robots"[^>]*>','<meta name="robots" content="noindex">',four,count=1)
@@ -129,6 +129,11 @@ open(OUT+'/_headers','w').write('''/fonts/*
   Cache-Control: public, max-age=604800
 /og.png
   Cache-Control: public, max-age=604800
+/carte/*
+  X-Robots-Tag: noindex, nofollow
+/total-studios.vcf
+  Content-Type: text/vcard; charset=utf-8
+  X-Robots-Tag: noindex
 /*
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
@@ -181,6 +186,12 @@ Visuels et templates de publications, développement d’identité visuelle (bra
 - Contact : {DOMAIN}/contact/
 - Réserver : {DOMAIN}/reserver/
 ''')
+# page /carte/ (page privée du code QR : hors menu, hors sitemap, noindex)
+_c=open(ROOT+'/source/carte.html',encoding='utf8').read()
+_d=re.search(r'<svg width="0" height="0" style="position:absolute" aria-hidden="true">.*?</svg>',s,re.S).group(0)
+os.makedirs(OUT+'/carte',exist_ok=True)
+open(OUT+'/carte/index.html','w',encoding='utf8').write(_c.replace('{{DEFS}}',_d))
+open(OUT+'/total-studios.vcf','w',encoding='utf8',newline='').write('BEGIN:VCARD\r\nVERSION:3.0\r\nFN:TOTAL STUDIOS\r\nORG:TOTAL STUDIOS\r\nTITLE:Photographie sportive et contenu digital\r\nEMAIL;TYPE=WORK:info@totalstudios.ca\r\nURL:'+DOMAIN+'/\r\nADR;TYPE=WORK:;;;Montréal;QC;;Canada\r\nEND:VCARD\r\n')
 # favicon + og source: logo defs
 m=re.search(r'<svg width="0" height="0" style="position:absolute" aria-hidden="true">.*?</svg>',s,re.S);defs=m.group(0)
 pass
