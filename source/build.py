@@ -3,6 +3,10 @@ import sys
 ROOT=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC=ROOT+'/source/index.source.html'; OUT=ROOT+'/site'
 DOMAIN='https://totalstudios.ca'
+_t=re.sub(r'\n\s*','',open(ROOT+'/source/t.js',encoding='utf8').read().strip())
+TRACK='<script id="tk">'+_t+'</script>'
+def track(h):
+    assert h.count('</body>')==1; return h.replace('</body>',TRACK+'</body>')
 shutil.rmtree(OUT,ignore_errors=True); os.makedirs(OUT+'/fonts')
 s=open(SRC,encoding='utf8').read()
 # fonts out
@@ -76,6 +80,7 @@ window.addEventListener('popstate',()=>{const p=location.pathname.replace(/^\\/|
     h=re.sub(r'<section class="(v[^"]*) on" id="%s"'%v,lambda m:m.group(0),h)
     g="$$('.v').forEach(e=>e.classList.toggle('on',e.id==h))"; assert h.count(g)==1
     h=h.replace(g,"$$('.v').forEach(e=>{e.classList.toggle('on',e.id==h);e.hidden=e.id!=h;e.setAttribute('aria-hidden',e.id!=h)})")
+    h=track(h)
     d=OUT+path; os.makedirs(d,exist_ok=True); open(d+'index.html','w',encoding='utf8').write(h)
 # static files
 [shutil.copy(ROOT+'/source/assets/'+f,OUT+'/'+f) for f in ['og.png','favicon-noir.svg','favicon-blanc.svg','favicon-noir-64.png','favicon-blanc-64.png','apple-touch-icon.png']]
@@ -86,6 +91,7 @@ four=re.sub(r'<meta name="robots"[^>]*>','<meta name="robots" content="noindex">
 four=re.sub(r'<link rel="canonical"[^>]*>','',four,count=1)
 four=re.sub(r'<script type="application/ld\+json">.*?</script>','',four,count=1,flags=re.S)
 four=re.sub(r'(<section class="v pg ct on" id="contact"><div class="w"><h1>)Contact(</h1>).*?</dl>',r'\1Page introuvable\2<div class="ex"><p>Cette page n’existe pas. <a href="/" style="color:#fff">Retour à l’accueil</a></p></div>',four,count=1,flags=re.S)
+four=four.replace('<script id="tk">','<script>window.__404=1</script><script id="tk">',1); assert '__404' in four
 open(OUT+'/404.html','w',encoding='utf8').write(four)
 open(OUT+'/robots.txt','w').write(f'''User-agent: *
 Allow: /
@@ -190,7 +196,7 @@ Visuels et templates de publications, développement d’identité visuelle (bra
 _c=open(ROOT+'/source/carte.html',encoding='utf8').read()
 _d=re.search(r'<svg width="0" height="0" style="position:absolute" aria-hidden="true">.*?</svg>',s,re.S).group(0)
 os.makedirs(OUT+'/carte',exist_ok=True)
-open(OUT+'/carte/index.html','w',encoding='utf8').write(_c.replace('{{DEFS}}',_d))
+open(OUT+'/carte/index.html','w',encoding='utf8').write(track(_c.replace('{{DEFS}}',_d)))
 open(OUT+'/total-studios.vcf','w',encoding='utf8',newline='').write('BEGIN:VCARD\r\nVERSION:3.0\r\nFN:TOTAL STUDIOS\r\nORG:TOTAL STUDIOS\r\nEMAIL;TYPE=WORK:info@totalstudios.ca\r\nURL:'+DOMAIN+'/\r\nADR;TYPE=WORK:;;;Montréal;QC;;Canada\r\nEND:VCARD\r\n')
 # favicon + og source: logo defs
 m=re.search(r'<svg width="0" height="0" style="position:absolute" aria-hidden="true">.*?</svg>',s,re.S);defs=m.group(0)
