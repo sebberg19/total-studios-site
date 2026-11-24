@@ -63,13 +63,13 @@ export async function ingest(store, b, meta) {
     Object.assign(ev, {
       dev: w && w < 768 ? 'Mobile' : w && w < 1100 ? 'Tablette' : 'Ordinateur', br, os,
       lang: clip(b.l, 2).toLowerCase() || '?',
-      co: clip(meta.geo?.country?.code || meta.geo?.country?.name, 40), tz: clip(b.z, 40), ci: clip(meta.geo?.city, 40), rg: clip(meta.geo?.subdivision?.code, 6),
+      co: clip(meta.geo?.country?.code || meta.geo?.country?.name, 40), tz: /^[A-Za-z0-9_+\-]+(\/[A-Za-z0-9_+\-]+){0,2}$/.test(clip(b.z, 40)) ? clip(b.z, 40) : '', ci: clip(meta.geo?.city, 40), rg: clip(meta.geo?.subdivision?.code, 6),
     });
     if (b.n) ev.nf = 1;
     if ('r' in b) {
       let host = ''; try { host = new URL(String(b.r)).hostname.replace(/^www\./, '').toLowerCase(); } catch (_) {}
       if (own(host)) host = '';
-      ev.arr = 1; ev.rh = host; ev.u = clip(b.s, 30).toLowerCase(); ev.rc = refCat(host, ev.u);
+      ev.arr = 1; ev.rh = host; ev.u = clip(b.s, 30).toLowerCase().replace(/[^a-z0-9_.\-]/g, ''); ev.rc = refCat(host, ev.u);
     }
   } else if (k === 'd') {
     ev.ms = Math.max(0, Math.min(+b.ms || 0, 1800000));
@@ -91,7 +91,7 @@ async function getSalt(store, week) {
 
 // ---------- regroupement par jour ----------
 const blank = day => ({ day, pv: 0, arr: 0, ev: {}, pages: {}, entry: {}, ref: {}, cat: {}, utm: {}, country: {}, tz: {}, city: {}, dev: {}, br: {}, os: {}, lang: {}, hour: Array(24).fill(0), nf: {}, v: {} });
-const inc = (o, k, n = 1) => { if (k === undefined || k === '') return; if (!(k in o) && Object.keys(o).length >= 300) k = '(autres)'; o[k] = (o[k] || 0) + n; };
+const inc = (o, k, n = 1) => { if (k === undefined || k === '' || k === '__proto__' || k === 'constructor' || k === 'prototype') return; if (!Object.prototype.hasOwnProperty.call(o, k) && Object.keys(o).length >= 300) k = '(autres)'; o[k] = (Object.prototype.hasOwnProperty.call(o, k) ? o[k] : 0) + n; };
 
 export function apply(s, e) {
   const v = s.v[e.h] || (s.v[e.h] = { n: 0, ms: 0 });

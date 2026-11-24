@@ -3,7 +3,7 @@ import { ingest } from '../lib/stats.mjs';
 import { statsStore } from '../lib/send-report.mjs';
 
 export default async (req, context) => {
-  const no = status => new Response(null, { status });
+  const no = status => new Response(null, { status, headers: { 'cache-control': 'no-store' } });
   if (req.method !== 'POST') return no(405);
   try {
     const o = req.headers.get('origin') || '';
